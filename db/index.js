@@ -1,27 +1,35 @@
 const Sequelize = require('sequelize');
-const conn = new Sequelize(process.env.DATABASE_URL || 'postgres://localhost/the_acme_item_tracker_db');
+const conn = new Sequelize(
+  process.env.DATABASE_URL || 'postgres://localhost/the_acme_item_tracker_db'
+);
 
 const { STRING, INTEGER } = Sequelize;
 
 const User = conn.define('user', {
   name: {
-    type: STRING 
-  }
+    type: STRING,
+  },
+  ranking: {
+    type: INTEGER,
+    defaultValue: 5,
+  },
 });
 
 const Thing = conn.define('thing', {
   name: {
-    type: STRING 
+    type: STRING,
   },
   ranking: {
     type: INTEGER,
-    defaultValue: 1
-  }
+    defaultValue: 1,
+  },
 });
 
 Thing.belongsTo(User);
+User.hasMany(Thing); // not sure how to check the number of things associated with a user
+
 Thing.addHook('beforeValidate', (thing) => {
-  if(!thing.userId){
+  if (!thing.userId) {
     thing.userId = null;
   }
 });
@@ -29,5 +37,5 @@ Thing.addHook('beforeValidate', (thing) => {
 module.exports = {
   conn,
   User,
-  Thing
+  Thing,
 };
